@@ -13,7 +13,7 @@ struct maxqueue
             s1.push({x,max(x,(int)s1.top().ss)});
         }
     }
-    void pop_back()
+    void pop_front()
     {
         if(s2.empty())
         {
@@ -28,7 +28,7 @@ struct maxqueue
         int ans = s2.top().ff;
         s2.pop();
     }
-    int look_pop_back()
+    int front()
     {
         if(s2.empty())
         {
@@ -44,7 +44,7 @@ struct maxqueue
         s2.pop();
         return ans;
     }
-    void pop_front()
+    void pop_rear()
     {
         if(s1.empty()) 
         {
@@ -59,7 +59,7 @@ struct maxqueue
         int val = s1.top().ff;
         s1.pop();
     }
-    int look_pop_front()
+    int rear()
     {
         if(s1.empty()) 
         {
@@ -72,7 +72,6 @@ struct maxqueue
             }
         }
         int val = s1.top().ff;
-        s1.pop();
         return val;
     }
     int maximum()
