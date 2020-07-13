@@ -1,23 +1,26 @@
-int add(int a, int b)
+const int SZ = 2;
+int base[SZ];
+int dp[SZ];
+int add(ll a, ll b)
 {
-	int res = a + b;
-	if(res >= MOD)
-		return res - MOD;
+	ll res = a + b;
+	if(res >= M)
+		return res - M;
 	return res;
 }
 
-int mult(int a, int b)
+ll mult(ll a, ll b)
 {
 	long long res = a;
 	res *= b;
-	if(res >= MOD)
-		return res % MOD;
+	if(res >= M)
+		return res % M;
 	return res;
 }
 
 struct matrix
 {
-	int arr[SZ][SZ];
+	ll arr[SZ][SZ];
 
 	void reset()
 	{
@@ -64,7 +67,7 @@ struct matrix
 	}
 };
 
-matrix power(matrix a, int b)
+matrix power(matrix a, ll b)
 {
 	matrix res;
 	res.makeiden();
@@ -80,6 +83,17 @@ matrix power(matrix a, int b)
 	return res;
 }
 
+
+//For multiplying the matrix at the end..dp[i] is final matrix while base matrix contains base cases 
+    for(int i = 0 ; i < SZ ; i++)
+    {
+        dp[i] = 0;
+        for(int j = 0 ; j < SZ ; j++)
+        {
+            //cout<<expo.a[i][j]<<" "; 
+            dp[i] = add(dp[i] , mult(expo.a[i][j],base[j]));
+        }
+    }
 //Matrix Exponentiation:
 //Sample Problem 1: http://codeforces.com/contest/954/problem/F
 //Sample Solution 1: http://codeforces.com/contest/954/submission/39865763
