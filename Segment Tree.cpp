@@ -1,149 +1,101 @@
-
-//The vector a follows one based indexing vi a(n+1)
-//initialize Segtree with the size of vector i.e n
 struct data
+{
+    ll m,c;
+};
+struct SegTree
+{
+    int N;
+    vector<data>val;
+    
+    data neutral = {INF,0};
+    data merge(data a, data b)
     {
-        //Use required attributes
-        ll mn;
-        //Default Values
-        data() : mn(INF) {};
-    };
-    struct SegTree
+        if(a.m<b.m) return {a.m,a.c};
+        if(a.m>b.m) return {b.m,b.c};
+        return {a.m,a.c+b.c};
+    }
+    
+    data single(int v)
     {
-        int N;
-        vector<data> st;
-        vector<bool> cLazy;
-        vector<int> lazy;
-
-        void init(int n)
+        return {v,1};
+    }
+    
+    void init(int n)
+    { 
+        N = 1;
+        while(N<n)
+        N*=2;
+        val.resize(2*N);
+    }
+    
+    
+    void build(vector<ll> &a , int x , int lx , int rx)
+    {
+        if(rx - lx == 1)
         {
-            N = n;
-            st.resize(4 * N + 5);
-            cLazy.assign(4 * N + 5, false);
-            lazy.assign(4 * N + 5, 0);
+            if(lx < (int)a.size())
+            {
+                val[x] = single(a[lx]);
+            }
+            return;
         }
+        int m = (lx + rx)/2;
+        build(a , 2*x+1 , lx , m);
+        build(a , 2*x+2 , m , rx);
+        val[x] = merge(val[2*x+1] , val[2*x+2]);
+    }
 
-        //Write reqd merge functions
-        void merge(data &cur, data &l, data &r) 
+
+
+    void update(int i , int v , int x , int lx , int rx)
+    {
+        if (rx-lx == 1)
         {
-            cur.mn = min(l.mn,r.mn);
+            val[x] = single(v);
+            return;
         }
+        int m = (rx+lx)/2;
+        if(i<m)
+        {
+            update(i, v, 2*x+1 , lx , m);
+        }
+        else
+        {
+            update(i , v , 2*x+2 , m ,rx);
+        }
+        val[x] = merge(val[2*x+1] , val[2*x+2]);
+    }
+
+
+
+    data query(int l ,int r , int x , int lx ,int rx)
+    {
+        if(lx >= r || rx <= l)
+        return neutral;
         
-        //Handle lazy propagation appriopriately
-        void propagate(int node, int L, int R)
-        {
-            if(L != R)
-            {
-                cLazy[node*2] = 1;
-                cLazy[node*2 + 1] = 1;
-                lazy[node*2] = lazy[node];
-                lazy[node*2 + 1] = lazy[node]; 
-            }
-            st[node].mn = lazy[node];
-            cLazy[node] = 0;
-        }
+        if(lx >= l && rx <= r)
+        return val[x];
 
-        void Build(vl &a , int node, int L, int R)
-        {
-            if(L==R)
-            {
-                st[node].mn = a[L] ;
-                return;
-            }
-            int M=(L + R)/2;
-            Build(a,node*2, L, M);
-            Build(a,node*2 + 1, M + 1, R);
-            merge(st[node], st[node*2], st[node*2+1]);
-        }
+        int m = (lx+rx)/2;
+        
+        data left = query(l, r, 2*x+1, lx, m);
+        data right = query(l, r, 2*x+2, m, rx);
+        
+        data cur = merge(left , right);
+        return cur;
+    }
 
-        data Query(int node, int L, int R, int i, int j)
-        {
-            if(cLazy[node])
-                propagate(node, L, R);
-            if(j<L || i>R)
-                return data();
-            if(i<=L && R<=j)
-                return st[node];
-            int M = (L + R)/2;
-            data left=Query(node*2, L, M, i, j);
-            data right=Query(node*2 + 1, M + 1, R, i, j);
-            data cur;
-            merge(cur, left, right);
-            return cur;
-        }
-
-        data pQuery(int node, int L, int R, int pos)
-        {
-            if(cLazy[node])
-                propagate(node, L, R);
-            if(L == R)
-                return st[node];
-            int M = (L + R)/2;
-            if(pos <= M)
-                return pQuery(node*2, L, M, pos);
-            else
-                return pQuery(node*2 + 1, M + 1, R, pos);
-        }	
-
-        void Update(int node, int L, int R, int i, int j, int val)
-        {
-            if(cLazy[node])
-                propagate(node, L, R);
-            if(j<L || i>R)
-                return;
-            if(i<=L && R<=j)
-            {
-                cLazy[node] = 1;
-                lazy[node] = val;
-                propagate(node, L, R);
-                return;
-            }
-            int M = (L + R)/2;
-            Update(node*2, L, M, i, j, val);
-            Update(node*2 + 1, M + 1, R, i, j, val);
-            merge(st[node], st[node*2], st[node*2 + 1]);
-        }
-
-        void pUpdate(int node, int L, int R, int pos, int val)
-        {
-            if(cLazy[node])
-                propagate(node, L, R);
-            if(L == R)
-            {
-                cLazy[node] = 1;
-                lazy[node] = val;
-                propagate(node, L, R);
-                return;
-            }
-            int M = (L + R)/2;
-            if(pos <= M)
-                pUpdate(node*2, L, M, pos, val);
-            else
-                pUpdate(node*2 + 1, M + 1, R, pos, val);
-            merge(st[node], st[node*2], st[node*2 + 1]);
-        }
-
-        data query(int pos)
-        {
-            return pQuery(1, 1, N, pos);
-        }
-
-        data query(int l, int r)
-        {
-            return Query(1, 1, N, l, r);
-        }
-
-        void update(int pos, int val)
-        {
-            pUpdate(1, 1, N, pos, val);
-        }
-
-        void update(int l, int r, int val)
-        {
-            Update(1, 1, N, l, r, val);
-        }
-        void build(vector<ll>&a)
-        {
-            Build(a,1,1,(int)a.size()-1);
-        }
-    };
+    
+    data query(int l ,int r)
+    {
+        return query(l,r,0,0,N);
+    }
+    void update(int i ,int v)
+    {
+        update(i,v,0,0,N);
+    }
+    void build(vector<ll>& a)
+    {
+        build(a,0,0,N);
+    }
+};
