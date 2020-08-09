@@ -38,12 +38,12 @@ void factorial()
     invfact.resize(e);
     fact[0] = 1;
     invfact[0] = 1;
-    loop(i,1,e)
+    fo(i,1,e)
     {
         fact[i] = fact[i-1]*i;
         mod(fact[i],M);
     }
-    loop(i,1,e)
+    fo(i,1,e)
     {
         invfact[i] = modinv(fact[i]);
         mod(invfact[i],M);
