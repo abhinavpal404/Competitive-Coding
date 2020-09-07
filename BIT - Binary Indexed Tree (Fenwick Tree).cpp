@@ -29,6 +29,7 @@ int rsum(int l, int r)
 
 ----------------------------------------------------------------------------------------------------------------------
 
+//Original Vector shall be one based where sum(i) includes i ( 1 based)
 struct BIT
 {
 	int N;
@@ -36,7 +37,7 @@ struct BIT
 
 	void init(int n)
 	{
-		N = n;
+		N = n ;
 		bit.assign(n + 1, 0);
 	}
 
